@@ -60,11 +60,12 @@ func (db *DbHandler) GetAll() []models.Pizza {
 	}
 	return pizzas
 }
-func (db *DbHandler) CreatePizza(name string, price float64, topping string) {
+func (db *DbHandler) CreatePizza(name string, price float64, topping string) error {
 	_, err := db.Db.Exec("INSERT INTO pizza (name, price, topping) VALUES ($1, $2, $3)", name, price, topping)
 	if err != nil {
-		panic(err)
+		return error
 	}
+	return nil
 }
 
 func (db *DbHandler) UpdatePizza(id int, name string, price float64, topping string) (int, error) {

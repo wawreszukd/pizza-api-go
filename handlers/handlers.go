@@ -24,21 +24,37 @@ func (h *Handlers) HandleGetAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (h *Handlers) HandlePost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Write([]byte("Invalid request method"))
+		return
+	}
 	price, err := strconv.ParseFloat(strings.TrimSpace(r.URL.Query().Get("price")), 64)
 	if err != nil {
-		panic(err)
+		w.Write([]byte("Invalid price"))
+		return
 	}
-	h.Db.CreatePizza(r.URL.Query().Get("name"), price, r.URL.Query().Get("topping"))
+	err = h.Db.CreatePizza(r.URL.Query().Get("name"), price, r.URL.Query().Get("topping"))
+	if err != nil {
+		w.Write([]byte("Error creating pizza"))
+	}
 }
 func (h *Handlers) HandleUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		w.Write([]byte("Invalid request method"))
+		return
+	}
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id == 0 {
+		w.Write([]byte("Invalid id"))
+		return
+	}
 	price, err := strconv.ParseFloat(strings.TrimSpace(r.URL.Query().Get("price")), 64)
 	if err != nil {
-		panic(err)
+		w.Write([]byte("Invalid price"))
 	}
 	id, err = h.Db.UpdatePizza(id, r.URL.Query().Get("name"), price, r.URL.Query().Get("topping"))
 	if err != nil {
-		panic(err)
+		w.Write([]byte("Error updating pizza"))
 	}
 	_, err = w.Write([]byte(strconv.Itoa(id) + " updated"))
 	if err != nil {
@@ -46,13 +62,18 @@ func (h *Handlers) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (h *Handlers) HandleDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		w.Write([]byte("Invalid request method"))
+		return
+	}
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil {
-		panic(err)
+	if err != nil || id == 0 {
+		w.Write([]byte("Invalid id"))
+		return
 	}
 	id, err = h.Db.DeletePizza(id)
 	if err != nil {
-		panic(err)
+		w.Write([]byte("Error deleting pizza"))
 	}
 	_, err = w.Write([]byte(strconv.Itoa(id) + " deleted"))
 	if err != nil {
