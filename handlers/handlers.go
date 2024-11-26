@@ -15,7 +15,22 @@ type Handlers struct {
 func New(database *db.DbHandler) *Handlers {
 	return &Handlers{Db: database}
 }
-
+func (h *Handlers) HandleGetOne(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id == 0 {
+		w.Write([]byte("Invalid id"))
+		return
+	}
+	pizza, err := h.Db.GetOne(id)
+	if err != nil {
+		w.Write([]byte("Error: invalid id"))
+		return
+	}
+	err = json.NewEncoder(w).Encode(pizza)
+	if err != nil {
+		panic(err)
+	}
+}
 func (h *Handlers) HandleGetAll(w http.ResponseWriter, r *http.Request) {
 	pizzas := h.Db.GetAll()
 	err := json.NewEncoder(w).Encode(pizzas)

@@ -2,4 +2,4 @@
 ## endpoints:
 - GET /
 - POST /create
-- PUT
+- PUT /
